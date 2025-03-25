@@ -177,6 +177,7 @@ public class ClientWindow implements ActionListener
     // Added by Brooks - Handles submit button click
     private void handleSubmit() {
         clock.cancel(); // Stop the answer timer
+        submit.setEnabled(false);
         
         char selectedAnswer = ' ';
         for (int i = 0; i < options.length; i++) {
