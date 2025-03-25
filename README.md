@@ -31,3 +31,4 @@ This project was completed by:
 
 - Brooks Jackson (me)
 - [Eric May](https://github.com/ericmay33)
+- [Pierce Conway](https://github.com/piecon18)
