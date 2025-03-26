@@ -88,6 +88,7 @@ public class ServerTrivia {
     public void startServer() {
         try {
             // Start TCP server socket
+            @SuppressWarnings("resource")
             ServerSocket serverSocket = new ServerSocket(serverPort1, 50, InetAddress.getByName(serverIP));
             System.out.println("Server started on IP: " + serverIP + " Port: " + serverPort1);
 
