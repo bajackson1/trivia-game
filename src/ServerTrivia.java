@@ -3,13 +3,13 @@ package src;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,6 +21,9 @@ public class ServerTrivia {
     private int serverPort1; // TCP Port
     private int serverPort2; // UDP Port
     private Map<Integer, ClientThread> activeClients;
+
+    // Added by Brooks - Thread-safe score tracking
+    private final Map<Integer, Integer> clientScores = new ConcurrentHashMap<>();
     
     // Added by Eric - Server Trivia Constructor
     public ServerTrivia() {
@@ -65,10 +68,25 @@ public class ServerTrivia {
         }
     }
 
-    // Added by Eric - Start Trivia Server 
+    // Added by Brooks - Score management methods
+    public void initializeClientScore(int clientID) {
+        clientScores.put(clientID, 0);
+        System.out.println("Score initialized for client " + clientID);
+    }
+    
+    public void updateClientScore(int clientID, int delta) {
+        clientScores.merge(clientID, delta, Integer::sum);
+        System.out.println("Client " + clientID + " score updated to: " + clientScores.get(clientID));
+    }
+    
+    public int getClientScore(int clientID) {
+        return clientScores.getOrDefault(clientID, 0);
+    }
+
+    // Added by Eric - Start Trivia Server
+    // Modified by Brooks - Added score initialization
     public void startServer() {
         try {
-
             // Start TCP server socket
             ServerSocket serverSocket = new ServerSocket(serverPort1, 50, InetAddress.getByName(serverIP));
             System.out.println("Server started on IP: " + serverIP + " Port: " + serverPort1);
@@ -88,8 +106,11 @@ public class ServerTrivia {
                 // Assign a unique clientID and create a new ClientThread for the client
                 // Client thread handles the TCP communication with the client
                 int clientID = nextClientID;
-                ClientThread clientThread = new ClientThread(clientSocket, clientID);
+                ClientThread clientThread = new ClientThread(clientSocket, clientID, this); // Modified by Brooks
                 this.nextClientID++;
+
+                // Added by Brooks - Initialize score
+                initializeClientScore(clientID);
 
                 // Add the client to the activeClients map
                 activeClients.put(clientID, clientThread);

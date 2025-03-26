@@ -21,6 +21,7 @@ public class ClientWindow implements ActionListener
     
     private JFrame window;
     
+    @SuppressWarnings("unused")
     private static SecureRandom random = new SecureRandom();
     
     // Added by Brooks - New fields for question handling
