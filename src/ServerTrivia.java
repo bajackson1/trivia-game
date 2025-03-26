@@ -111,6 +111,21 @@ public class ServerTrivia {
         System.out.println("Server shutting down...");
     }
 
+    // Added by Eric - Method to get all connected clients
+    public Map<Integer, ClientThread> getActiveClients() {
+        return activeClients;
+    }
+
+    // Added by Eric - Method to add a new client to the map
+    public void addClient(int clientID, ClientThread clientThread) {
+        activeClients.put(clientID, clientThread);
+    }
+
+    // Added by Eric - Method to remove a client from the map
+    public void removeClient(int clientID) {
+        activeClients.remove(clientID);
+    }
+
     // Added by Eric - main method to start trivia server
     public static void main(String[] args) {
         ServerTrivia server = new ServerTrivia();
