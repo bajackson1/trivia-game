@@ -46,6 +46,9 @@ public class ClientWindow implements ActionListener
     {
         // Added by Brooks - Initialize question bank
         questionBank = new QuestionBank();
+
+        // Added by Eric - Read the server config file
+        readConfig();
         
         JOptionPane.showMessageDialog(window, "This is a trivia game");
         
