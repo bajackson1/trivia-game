@@ -3,6 +3,9 @@ package src;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.TimerTask;
 import java.util.Timer;
@@ -28,6 +31,11 @@ public class ClientWindow implements ActionListener
     private QuestionBank questionBank;
     private Question currentQuestion;
     private int playerScore = 0;
+
+    // Added by Eric - fields for server information (IP and Ports)
+    private String serverIP;
+    private int TCPserverPort;
+    private int UDPserverPort;
     
     // write setters and getters as you need
     
@@ -250,6 +258,43 @@ public class ClientWindow implements ActionListener
             timer.setText(duration+"");
             duration--;
             window.repaint();
+        }
+    }
+
+    // Added by Eric - Read Server Config for IP and Port
+    public void readConfig() {
+        String configFile = "config/config.txt";
+        try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+            String line;
+            // Read server IP
+            line = reader.readLine();
+            if (line != null && !line.trim().isEmpty()) {
+                serverIP = line.trim();
+                System.out.println("Server IP: " + serverIP);
+            } else {
+                throw new IOException("Config file is empty or invalid.");
+            }
+
+            // Read TCP Port
+            line = reader.readLine();
+            if (line != null && !line.trim().isEmpty()) {
+                TCPserverPort = Integer.parseInt(line.trim());
+                System.out.println("TCP Port: " + TCPserverPort);
+            } else {
+                throw new IOException("Invalid TCP port in config.");
+            }
+
+            // Read UDP Port
+            line = reader.readLine();
+            if (line != null && !line.trim().isEmpty()) {
+                UDPserverPort = Integer.parseInt(line.trim());
+                System.out.println("UDP Port: " + UDPserverPort);
+            } else {
+                throw new IOException("Invalid UDP port in config.");
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Error reading server config: " + e.getMessage());
         }
     }
 }
