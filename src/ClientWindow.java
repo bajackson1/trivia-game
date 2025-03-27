@@ -6,6 +6,9 @@ import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.security.SecureRandom;
 import java.util.TimerTask;
 import java.util.Timer;
@@ -170,12 +173,16 @@ public class ClientWindow implements ActionListener
     }
     
     // Added by Brooks - Handles poll button click
+    // Modified by Eric - send the buzz to the server using UDP send message method
     private void handlePoll() {
         poll.setEnabled(false);
         submit.setEnabled(true);
         for (JRadioButton option : options) {
             option.setEnabled(true);
         }
+
+        // Send poll notification to the server via UDP
+        this.sendBuzzMessage();
         
         // Cancel question timer and start answer timer
         clock.cancel();
@@ -295,6 +302,23 @@ public class ClientWindow implements ActionListener
 
         } catch (IOException e) {
             throw new RuntimeException("Error reading server config: " + e.getMessage());
+        }
+    }
+
+    // Added by Eric - send the buzz to the server using UDP when polling
+    private void sendBuzzMessage() {
+        try (DatagramSocket socket = new DatagramSocket()) {
+            // Create UDPMessage with current timestamp and local IP
+            UDPMessage message = new UDPMessage(System.currentTimeMillis(), InetAddress.getLocalHost().getHostAddress());
+            byte[] data = message.encode();
+
+            // Send the packet
+            InetAddress serverAddress = InetAddress.getByName(serverIP);
+            DatagramPacket packet = new DatagramPacket(data, data.length, serverAddress, UDPserverPort);
+            socket.send(packet);
+            System.out.println("Message sent to " + serverIP);
+        } catch (Exception e) {
+            System.err.println("Error sending message: " + e.getMessage());
         }
     }
 }

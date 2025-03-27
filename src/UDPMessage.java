@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class UDPMessage implements Serializable {
     
     // Added by Eric - Data Fields of timestamp and source ip
+    private static final long serialVersionUID = 1L;
     private long timestamp;
     private String ip;
 
