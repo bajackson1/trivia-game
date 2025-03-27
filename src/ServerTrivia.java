@@ -16,11 +16,12 @@ import java.util.concurrent.Executors;
 public class ServerTrivia {
 
     private ExecutorService executorService;
+    private UDPThread udpThread;
     private int nextClientID = 1;
     private String serverIP;
     private int serverPort1; // TCP Port
     private int serverPort2; // UDP Port
-    private Map<Integer, ClientThread> activeClients;
+    private Map<Integer, ClientThread> activeClients = new ConcurrentHashMap<>();
 
     // Added by Brooks - Thread-safe score tracking
     private final Map<Integer, Integer> clientScores = new ConcurrentHashMap<>();
@@ -28,7 +29,6 @@ public class ServerTrivia {
     // Added by Eric - Server Trivia Constructor
     public ServerTrivia() {
         executorService = Executors.newCachedThreadPool();
-        activeClients = new HashMap<>();
     }
 
     // Added by Eric - Read Server Config for IP and Port
@@ -97,7 +97,7 @@ public class ServerTrivia {
             System.out.println("UDP server started on Port: " + serverPort2);
 
             // Start UDP thread to handle all incoming UDP packets
-            UDPThread udpThread = new UDPThread(udpSocket, this);
+            udpThread = new UDPThread(udpSocket, this);
             executorService.submit(udpThread);
 
             while (true) {

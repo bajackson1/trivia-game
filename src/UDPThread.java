@@ -2,6 +2,8 @@ package src;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 // Added by Eric - THIS CLASS HANDLES THE COMMUNICATION BETWEEN THE SERVER AND ALL THE CLIENTS
 // UDP 
@@ -9,10 +11,14 @@ public class UDPThread implements Runnable{
 
     private DatagramSocket socket;
     private ServerTrivia server;
+    private Queue<Integer> buzzQueue;
+    private long latestTimestamp;
 
     public UDPThread(DatagramSocket socket, ServerTrivia server) {
         this.socket = socket;
         this.server = server;
+        this.buzzQueue = new ConcurrentLinkedQueue<>();
+        this.latestTimestamp = Long.MIN_VALUE;
     }
 
     // Added by Eric - Method to listen for incoming UDP packets from all clients
@@ -51,10 +57,46 @@ public class UDPThread implements Runnable{
         }
     }
 
-    // Added by Eric - Method will be used to process the buzz when receiving packet from clients
-    // This method will find the client ID of the client that buzzed and then add them to the queue of buzzed clients
+    public void clearBuzzQueue() {
+        buzzQueue.clear();
+        latestTimestamp = Long.MIN_VALUE;
+    }
+
+    public Integer getFirstBuzzedClient() {
+        return buzzQueue.poll();
+    }
+
+    // Added by Eric - Method to process the buzz while maintaining timestamp order
     private void processBuzz(ClientThread clientThread, UDPMessage receivedMessage) {
-        System.out.println("Buzz received from client: " + receivedMessage.getClientIP() + " at " + receivedMessage.getTimestamp());
+        if (clientThread != null) {
+            Integer clientID = clientThread.getClientID();
+            long timestamp = receivedMessage.getTimestamp(); // Get timestamp from message
+    
+            // If the packet timestamp is newer than the latest, just add it
+            if (timestamp > latestTimestamp) {
+                latestTimestamp = timestamp;
+                buzzQueue.add(clientID);
+                System.out.println("Newer packet received. Client " + clientID + " added to queue.");
+            } else {
+                // If the packet timestamp is older, we need to handle out-of-order packets
+                Queue<Integer> tempQueue = new ConcurrentLinkedQueue<>(buzzQueue);
+    
+                // Clear the main queue and add the new packet
+                buzzQueue.clear();
+                buzzQueue.add(clientID);
+    
+                // Reinsert all previous clients
+                for (Integer id : tempQueue) {
+                    buzzQueue.add(id);
+                }
+    
+                System.out.println("Older packet received. Requeueing with Client " + clientID + " added at the front.");
+            }
+    
+            System.out.println("Current Queue: " + buzzQueue);
+        } else {
+            System.out.println("Client not found for IP: " + receivedMessage.getClientIP());
+        }
     }
 
     // Added by Eric - Method to get the client thread based on the UDP client sender IP

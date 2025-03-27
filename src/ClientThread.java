@@ -10,7 +10,7 @@ import java.net.Socket;
 // TCP
 public class ClientThread implements Runnable {
 
-    private int id;
+    private Integer id;
     private Socket socket;
     private ServerTrivia server; // Added by Brooks
 
@@ -74,7 +74,7 @@ public class ClientThread implements Runnable {
         return socket;
     }
 
-    public int getID() {
+    public int getClientID() {
         return id;
     }
 }
