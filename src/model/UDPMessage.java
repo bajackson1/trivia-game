@@ -1,4 +1,4 @@
-package src;
+package model;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

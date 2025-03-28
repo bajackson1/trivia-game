@@ -1,9 +1,11 @@
-package src;
+package server;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
+import model.UDPMessage;
 
 // Added by Eric - THIS CLASS HANDLES THE COMMUNICATION BETWEEN THE SERVER AND ALL THE CLIENTS
 // UDP 
@@ -69,7 +71,7 @@ public class UDPThread implements Runnable{
     // Added by Eric - Method to process the buzz while maintaining timestamp order
     private void processBuzz(ClientThread clientThread, UDPMessage receivedMessage) {
         if (clientThread != null) {
-            Integer clientID = clientThread.getClientID();
+            Integer clientID = clientThread.getClientId();
             long timestamp = receivedMessage.getTimestamp(); // Get timestamp from message
     
             // If the packet timestamp is newer than the latest, just add it
