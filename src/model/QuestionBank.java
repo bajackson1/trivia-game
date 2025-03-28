@@ -1,4 +1,4 @@
-package src;
+package src.model;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -64,5 +64,13 @@ public class QuestionBank {
     // Added by Brooks - Get current question number
     public int getCurrentQuestionNumber() {
         return currentQuestionIndex;
+    }
+
+    // Added by Brooks - Retrieves question by ID for answer validation
+    public Question getQuestion(int questionId) {
+        if (questionId >= 0 && questionId < questions.size()) {
+            return questions.get(questionId);
+        }
+        return null;
     }
 }
