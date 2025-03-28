@@ -1,11 +1,11 @@
-package src.server;
+package server;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import src.model.UDPMessage;
+import model.UDPMessage;
 
 // Added by Eric - THIS CLASS HANDLES THE COMMUNICATION BETWEEN THE SERVER AND ALL THE CLIENTS
 // UDP 

@@ -1,4 +1,4 @@
-package src.server;
+package server;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -12,9 +12,9 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import src.model.PlayerAnswer;
-import src.model.Question;
-import src.model.QuestionBank;
+import model.PlayerAnswer;
+import model.Question;
+import model.QuestionBank;
 
 public class ServerTrivia {
     private ExecutorService executorService;

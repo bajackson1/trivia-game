@@ -1,4 +1,4 @@
-package src.server;
+package server;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -7,10 +7,10 @@ import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import src.model.PlayerAnswer;
-import src.model.Question;
-import src.model.TCPMessage;
-import src.model.UDPMessage;
+import model.PlayerAnswer;
+import model.Question;
+import model.TCPMessage;
+import model.UDPMessage;
 
 
 // Added by Eric - THIS CLASS HANDLES THE COMMUNICATION BETWEEN THE SERVER AND THE ONE CLIENT ON THAT THREAD

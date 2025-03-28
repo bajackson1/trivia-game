@@ -1,4 +1,4 @@
-package src.client;
+package client;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -6,11 +6,11 @@ import java.io.*;
 import java.net.*;
 import javax.swing.*;
 
-import src.model.PlayerAnswer;
-import src.model.Question;
-import src.model.QuestionBank;
-import src.model.TCPMessage;
-import src.model.UDPMessage;
+import model.PlayerAnswer;
+import model.Question;
+import model.QuestionBank;
+import model.TCPMessage;
+import model.UDPMessage;
 
 import java.util.Timer;
 import java.util.TimerTask;
