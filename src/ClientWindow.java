@@ -109,6 +109,7 @@ public class ClientWindow implements ActionListener
             question.setText("<html>Game Over! Final Score: " + playerScore + "</html>");
             poll.setEnabled(false);
             submit.setEnabled(false);
+            handleAnswerProcess();
             return;
         }
         
@@ -177,6 +178,18 @@ public class ClientWindow implements ActionListener
     
     // Added by Brooks - Handles poll button click
     // Modified by Eric - send the buzz to the server using UDP send message method
+    // Modified by Pierce - Game logic for client answering(requires TCP connection to implement.)
+
+    /*Code will need to be adjusted to workbased on sent an recieved messages between client and serv.
+     Poll should always be enabled until timer runs out. Once timer runs out depending on the answer,
+     recieved from the server (Ack or negative-Ack), the clients submit button and answers choices
+     should be activated if recieved Ack and not Activated if negative-Ack.
+    */
+
+    //After further thought handle poll and answering should be seperate functions.
+    // handle poll should only be sending buzzes. make a class that handles disabling the poll button and answering.
+    //This means that handlePoll will be a 1 liner that only holds this.sendBuzzMessage();.
+    //probably should change name to poll pressed and then make answering function.
     private void handlePoll() {
         poll.setEnabled(false);
         submit.setEnabled(true);
@@ -191,6 +204,40 @@ public class ClientWindow implements ActionListener
         clock.cancel();
         clock = new TimerCode(10, true); // 10s answer period
         new Timer().schedule(clock, 0, 1000);
+
+        
+    }
+
+    private class handleAnsweringProcess extends Thread {
+        @Override
+        public void run() {
+            
+        }
+    }
+
+    //Added by Pierce - Handles answering process(requires finished TCPMessages)
+    //might wana run this as a thread or in a thread i.e. if timer<= 0 run this.
+    private void handleAnsweringProcess(){
+        //TODO: code for determining if client should choose an answer or not depending on if it recieves ack or negative-ack.
+        /*
+        //finds current time on the timer.
+        if(clock.scheduledExecutionTime() - System.currentTimeMillis() <= 0){
+            poll.setEnabled(false);
+            if(client recieves ack){
+                clock.cancel();
+                clock = new TimerCode(10, true); // 10s answer period
+                new Timer().schedule(clock, 0, 1000);
+                submit.setEnabled(true);
+                for (JRadioButton option : options) {
+                    option.setEnabled(true);
+                }
+            }
+            else{   //client doesn't recieve ack (negative-ack)
+                client waits for next question(pretty sure we just wait for the server to send the next question here
+                so this part will probs be empty or something close to it like presenting waiting or smtn like that.)
+                (This section will be different if we do the extra credit.)
+            }
+        */
     }
     
     // Added by Brooks - Handles submit button click
@@ -221,6 +268,8 @@ public class ClientWindow implements ActionListener
                 loadNextQuestion();
             }
         }, 1500);
+
+        
     }
     
     // Modified by Brooks - Enhanced timer class
@@ -270,6 +319,7 @@ public class ClientWindow implements ActionListener
             window.repaint();
         }
     }
+
 
     // Added by Eric - Read Server Config for IP and Port
     public void readConfig() {
