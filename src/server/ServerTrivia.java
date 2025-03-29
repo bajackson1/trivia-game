@@ -74,14 +74,6 @@ public class ServerTrivia {
     public boolean validateAnswer(PlayerAnswer answer) {
         Question question = questionBank.getQuestion(answer.getQuestionId());
 
-
-        System.out.println("answer question ID: " + answer.getQuestionId());
-        System.out.println("answer question ID: " + answer.getSelectedOption());
-        System.out.println("question ID: " + questionBank.getQuestion(answer.getQuestionId()).getQuestionNumber());
-        System.out.println("question ID: " + questionBank.getQuestion(answer.getQuestionId()).getQuestionText());
-        System.out.println("question ID: " + questionBank.getQuestion(answer.getQuestionId()).getCorrectAnswer());
-
-
         return question != null && 
                question.getCorrectAnswer() == answer.getSelectedOption();
     }

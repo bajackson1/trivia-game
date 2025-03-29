@@ -8,25 +8,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// Added by Brooks - Manages loading and serving questions
 public class QuestionBank {
     private List<Question> questions;
     private int currentQuestionIndex;
     
-    // Added by Brooks
     public QuestionBank() {
         questions = new ArrayList<>();
         currentQuestionIndex = 0;
         loadQuestionsFromFile();
     }
     
-    // Added by Brooks - Load questions from config file
+    // Load questions from config file
     private void loadQuestionsFromFile() {
         try (BufferedReader reader = new BufferedReader(
             new FileReader(Paths.get("config", "questions.txt").toFile()))) {
             
             String line;
-            int number = 1;
+            int number = 1; // Start from 1
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|");
                 if (parts.length == 6) {
@@ -34,7 +32,7 @@ public class QuestionBank {
                         parts[0], 
                         Arrays.copyOfRange(parts, 1, 5),
                         parts[5].charAt(0),
-                        number
+                        number // Assigns the correct question number
                     ));
                 }
                 number++;
@@ -45,7 +43,7 @@ public class QuestionBank {
         }
     }
     
-    // Added by Brooks - Fallback if file loading fails
+    // Fallback if file loading fails
     private void loadDefaultQuestions() {
         questions.add(new Question(
             "Who holds the single-game points record?",
@@ -55,25 +53,21 @@ public class QuestionBank {
         ));
     }
     
-    // Added by Brooks - Get next question in sequence
     public Question getNextQuestion() {
         return hasMoreQuestions() ? questions.get(currentQuestionIndex++) : null;
     }
     
-    // Added by Brooks - Check if more questions available
     public boolean hasMoreQuestions() {
         return currentQuestionIndex < questions.size();
     }
     
-    // Added by Brooks - Get current question number
     public int getCurrentQuestionNumber() {
-        return currentQuestionIndex;
+        return currentQuestionIndex + 1;
     }
 
-    // Added by Brooks - Retrieves question by ID for answer validation
     public Question getQuestion(int questionId) {
-        if (questionId >= 0 && questionId < questions.size()) {
-            return questions.get(questionId);
+        if (questionId >= 1 && questionId <= questions.size()) {
+            return questions.get(questionId - 1);
         }
         return null;
     }
