@@ -150,9 +150,7 @@ public class ClientWindow implements ActionListener {
         try {
             while (true) {
                 Object message = tcpIn.readObject();
-                System.out.print("received");
                 if (message instanceof TCPMessage) {
-                    System.out.print("tcp");
                     processTcpMessage((TCPMessage) message);
                 }
             }
@@ -167,6 +165,7 @@ public class ClientWindow implements ActionListener {
     // Added by Brooks - Handles different message types
     private void processTcpMessage(TCPMessage message) {
         SwingUtilities.invokeLater(() -> {
+            System.out.print(message.getType());
             switch (message.getType()) {
                 case QUESTION:
                     System.out.print("switch case");
@@ -255,8 +254,6 @@ public class ClientWindow implements ActionListener {
         new Timer().schedule(clock, 0, 1000);
         poll.setEnabled(true);
         submit.setEnabled(false);
-
-        System.out.print("reset");
     }
 
     // Added by Brooks - Handles poll button click
