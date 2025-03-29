@@ -234,6 +234,7 @@ public class ClientWindow implements ActionListener {
             options[i].setSelected(false);
         }
         
+        System.out.print("load");
         resetForNewQuestion();
     }
 
@@ -251,6 +252,8 @@ public class ClientWindow implements ActionListener {
         new Timer().schedule(clock, 0, 1000);
         poll.setEnabled(true);
         submit.setEnabled(false);
+
+        System.out.print("reset");
     }
 
     // Added by Brooks - Handles poll button click

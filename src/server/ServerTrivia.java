@@ -24,6 +24,7 @@ public class ServerTrivia {
     private int serverPort1; // TCP Port
     private int serverPort2; // UDP Port
     private Map<Integer, ClientThread> activeClients = new ConcurrentHashMap<>();
+    private Question currentQuestion;
     
     // Added by Brooks - Thread-safe score tracking for all clients
     private final Map<Integer, Integer> clientScores = new ConcurrentHashMap<>();
@@ -76,7 +77,7 @@ public class ServerTrivia {
 
         System.out.print(answer.getQuestionId());
 
-        
+
         return question != null && 
                question.getCorrectAnswer() == answer.getSelectedOption();
     }
@@ -113,6 +114,7 @@ public class ServerTrivia {
                 
                 initializeClientScore(clientID);
                 activeClients.put(clientID, clientThread);
+                broadcastQuestionOneClient(currentQuestion, clientThread);;
                 executorService.submit(clientThread);
             }
 
@@ -144,8 +146,8 @@ public class ServerTrivia {
         new Thread(() -> {
             try {
                 while (gameActive && questionBank.hasMoreQuestions()) {
-                    Question question = questionBank.getNextQuestion();
-                    broadcastQuestion(question);
+                    currentQuestion = questionBank.getNextQuestion();
+                    broadcastQuestion(currentQuestion);
                     udpThread.clearBuzzQueue(); // Reset the buzz queue
 
                     // Wait 15 seconds for buzzes
@@ -212,7 +214,7 @@ public class ServerTrivia {
                         }
                         udpThread.clearBuzzQueue(); // Empty remaining buzzes
                     } else {
-                        System.out.println("No one buzzed for question " + question.getQuestionText());
+                        System.out.println("No one buzzed for question " + currentQuestion.getQuestionText());
                     }
                 }
                 endGame();
@@ -231,6 +233,16 @@ public class ServerTrivia {
                 System.err.println("Error sending question to client " + client.getClientId());
             }
         });
+    }
+
+    // Added by Eric - Broadcasts question to one client
+    private void broadcastQuestionOneClient(Question question, ClientThread client) {
+        try {
+            client.sendQuestion(question);
+            System.out.println("send question");
+        } catch (IOException e) {
+            System.err.println("Error sending question to client " + client.getClientId());
+        }
     }
 
     // Added by Brooks - Ends game and announces final scores
