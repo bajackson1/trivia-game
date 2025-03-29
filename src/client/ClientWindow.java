@@ -184,19 +184,19 @@ public class ClientWindow implements ActionListener {
                 case CORRECT:
                     playerScore += 10;
                     updateScore(playerScore);
-                    showFeedback(true);
+                    showFeedback(1);
                     break;
                     
                 case WRONG:
                     playerScore -= 10;
                     updateScore(playerScore);
-                    showFeedback(false);
+                    showFeedback(2);
                     break;
 
                 case TIMEOUT:
                     playerScore -= 20;
                     updateScore(playerScore);
-                    showFeedback(false);
+                    showFeedback(3);
                     break;
                     
                 case GAME_OVER:
@@ -319,11 +319,16 @@ public class ClientWindow implements ActionListener {
     }
 
     // Added by Brooks - Shows feedback popup
-    private void showFeedback(boolean isCorrect) {
-        JOptionPane.showMessageDialog(window, 
-            isCorrect ? "Correct! +10 points" : "Wrong! -10 points");
-        
-        //loadNextQuestion();
+    private void showFeedback(int number) {
+        String display;
+        if (number == 1) {
+            display = "Correct! +10 points";
+        } else if (number == 2) {
+            display = "Wrong! -10 points";
+        } else {
+            display = "Timeout! -20 points :(";
+        }
+        JOptionPane.showMessageDialog(window, display);
     }
 
     // Added by Brooks - Loads next question from bank
