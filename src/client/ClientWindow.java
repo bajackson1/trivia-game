@@ -31,7 +31,6 @@ public class ClientWindow implements ActionListener {
     private JFrame window;
     
     // Game State
-    private QuestionBank questionBank;
     private Question currentQuestion;
     private int playerScore = 0;
     
@@ -78,7 +77,6 @@ public class ClientWindow implements ActionListener {
 
     // Added by Brooks - Initializes all UI components
     private void initializeUI() {
-        questionBank = new QuestionBank();
         
         window = new JFrame("Trivia Client");
         window.setSize(400, 400);
@@ -230,7 +228,7 @@ public class ClientWindow implements ActionListener {
     // Added by Brooks - Loads and displays new question
     private void loadQuestion(Question question) {
         this.currentQuestion = question;
-        this.question.setText("<html>Q" + questionBank.getCurrentQuestionNumber() + 
+        this.question.setText("<html>Q" + question.getQuestionNumber() + 
                            ". " + question.getQuestionText() + "</html>");
         
         String[] currentOptions = question.getOptions();
@@ -325,17 +323,11 @@ public class ClientWindow implements ActionListener {
         JOptionPane.showMessageDialog(window, 
             isCorrect ? "Correct! +10 points" : "Wrong! -10 points");
         
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                loadNextQuestion();
-            }
-        }, 1500);
+        loadNextQuestion();
     }
 
     // Added by Brooks - Loads next question from bank
     private void loadNextQuestion() {
-        currentQuestion = questionBank.getNextQuestion();
         if (currentQuestion == null) {
             endGame();
             return;
@@ -377,9 +369,16 @@ public class ClientWindow implements ActionListener {
         if (selectedAnswer != ' ') {
             try {
                 PlayerAnswer answer = new PlayerAnswer(
-                    questionBank.getCurrentQuestionNumber(),
+                    currentQuestion.getQuestionNumber(),
                     selectedAnswer
                 );
+
+
+
+                System.out.print(currentQuestion.getQuestionNumber());
+
+                
+
                 tcpOut.writeObject(answer);
                 tcpOut.flush();
                 submit.setEnabled(false);

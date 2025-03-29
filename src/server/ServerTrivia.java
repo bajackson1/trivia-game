@@ -72,6 +72,11 @@ public class ServerTrivia {
     // Added by Brooks - Validates player answer against correct answer
     public boolean validateAnswer(PlayerAnswer answer) {
         Question question = questionBank.getQuestion(answer.getQuestionId());
+
+
+        System.out.print(answer.getQuestionId());
+
+        
         return question != null && 
                question.getCorrectAnswer() == answer.getSelectedOption();
     }
@@ -142,7 +147,7 @@ public class ServerTrivia {
                     Question question = questionBank.getNextQuestion();
                     broadcastQuestion(question);
                     udpThread.clearBuzzQueue(); // Reset the buzz queue
-    
+
                     // Wait 15 seconds for buzzes
                     Thread.sleep(15000);
     

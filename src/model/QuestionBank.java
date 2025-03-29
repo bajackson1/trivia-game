@@ -26,15 +26,18 @@ public class QuestionBank {
             new FileReader(Paths.get("config", "questions.txt").toFile()))) {
             
             String line;
+            int number = 1;
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split("\\|");
                 if (parts.length == 6) {
                     questions.add(new Question(
                         parts[0], 
                         Arrays.copyOfRange(parts, 1, 5),
-                        parts[5].charAt(0)
+                        parts[5].charAt(0),
+                        number
                     ));
                 }
+                number++;
             }
         } catch (IOException e) {
             System.err.println("Error loading questions: " + e.getMessage());
@@ -47,7 +50,8 @@ public class QuestionBank {
         questions.add(new Question(
             "Who holds the single-game points record?",
             new String[]{"Michael Jordan", "Kobe Bryant", "Wilt Chamberlain", "LeBron James"},
-            'C'
+            'C',
+            1
         ));
     }
     
