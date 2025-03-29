@@ -150,7 +150,9 @@ public class ClientWindow implements ActionListener {
         try {
             while (true) {
                 Object message = tcpIn.readObject();
+                System.out.print("received");
                 if (message instanceof TCPMessage) {
+                    System.out.print("tcp");
                     processTcpMessage((TCPMessage) message);
                 }
             }
@@ -167,6 +169,7 @@ public class ClientWindow implements ActionListener {
         SwingUtilities.invokeLater(() -> {
             switch (message.getType()) {
                 case QUESTION:
+                    System.out.print("switch case");
                     currentQuestion = (Question) message.getPayload();
                     loadQuestion(currentQuestion);
                     break;
