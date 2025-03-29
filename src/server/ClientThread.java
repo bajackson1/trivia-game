@@ -122,6 +122,11 @@ public class ClientThread implements Runnable {
     public void sendTimeout() throws IOException {
         sendMessage(new TCPMessage(TCPMessage.MessageType.TIMEOUT));
     }
+
+    // Added by Pierce - will allow the client to poll when sent to the client.
+    public void sendEligibility() throws IOException {
+        sendMessage(new TCPMessage(TCPMessage.MessageType.ELIGIBILITY));
+    }
     
     // Added by Brooks - Cleans up network resources
     private void closeConnection() {

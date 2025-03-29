@@ -14,8 +14,9 @@ public class TCPMessage implements Serializable {
         WRONG,        // Server indicates wrong answer
         TIMEOUT,      // Server indicates no answer
         SCORE_UPDATE, // Broadcast updated scores
-        GAME_OVER,     // Signals end of game
-        KILL_CLIENT   // Kills the client.
+        GAME_OVER,    // Signals end of game
+        KILL_CLIENT,  // Kills the client
+        ELIGIBILITY   // Allow the client to poll
     }
     
     private final MessageType type;  // Added by Brooks - The message type

@@ -43,8 +43,14 @@ public class ClientWindow implements ActionListener {
     private ObjectInputStream tcpIn;
     private ObjectOutputStream tcpOut;
 
+    // Added by Pierce - To disable poll button until server allows client to answer questions(handles midgame joining)
+    private boolean eligibility;
+
     // Added by Eric - Client window constructor
+    // Modified by pierce - start eligibility as false for each client.
     public ClientWindow() {
+
+        this.eligibility = false;
         // Initialize UI first
         initializeUI();
         
@@ -73,6 +79,7 @@ public class ClientWindow implements ActionListener {
     }
 
     // Added by Brooks - Initializes all UI components
+    // Modified by Pierce - disabled pol button at the start of running the code.
     private void initializeUI() {
         
         window = new JFrame("Trivia Client");
@@ -111,7 +118,9 @@ public class ClientWindow implements ActionListener {
         poll = new JButton("Poll");
         poll.setBounds(50, 300, 100, 30);
         poll.addActionListener(this);
+        poll.setEnabled(false);
         window.add(poll);
+        
         
         // Submit button
         submit = new JButton("Submit");
@@ -210,6 +219,10 @@ public class ClientWindow implements ActionListener {
                 case KILL_CLIENT:
                     killClient();
                     break;
+
+                    case ELIGIBILITY:
+                    this.eligibility = true;
+                    break;
             }
         });
     }
@@ -252,7 +265,9 @@ public class ClientWindow implements ActionListener {
         
         clock = new TimerCode(15, false);
         new Timer().schedule(clock, 0, 1000);
-        poll.setEnabled(true);
+        if(eligibility == true){
+            poll.setEnabled(true);
+        }
         submit.setEnabled(false);
     }
 

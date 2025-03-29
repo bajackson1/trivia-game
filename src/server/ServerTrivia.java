@@ -98,6 +98,7 @@ public class ServerTrivia {
             executorService.submit(udpThread);
 
             // Start game question loop
+            Thread.sleep(10000);                                                  // MAKE GAME WAIT FOR 10 SEC FOR PEOPLE TO JOIN.
             startGame();
 
             // Accept client connections
@@ -137,11 +138,14 @@ public class ServerTrivia {
 
     // Added by Brooks - Manages the game question flow in separate thread
     // Modified by Eric - Added ACK/NACK logic, answer handling, thread timing logic
+    //Modified by Pierce - updates client eligibilities before sending a question to the client.
     private void startGame() {
         new Thread(() -> {
             try {
                 while (gameActive && questionBank.hasMoreQuestions()) {
                     currentQuestion = questionBank.getNextQuestion();
+                    Thread.sleep(5000);                                     //SLEEP THREAD TO GIVE TIME BETWEEN SUBMIT AND NEXT QUESTION.
+                   eligibility();
                     broadcastQuestion(currentQuestion);
                     udpThread.clearBuzzQueue(); // Reset the buzz queue
 
@@ -226,6 +230,17 @@ public class ServerTrivia {
                 client.sendQuestion(question);
             } catch (IOException e) {
                 System.err.println("Error sending question to client " + client.getClientId());
+            }
+        });
+    }
+
+    //Added by Pierce - sends ELIGIBILITY message to client allowing them to press the poll button.
+    private void eligibility() {
+        activeClients.values().forEach(client -> {
+            try {
+                client.sendEligibility();
+            } catch (IOException e) {
+                System.err.println("Error sending eligibility to client " + client.getClientId());
             }
         });
     }
