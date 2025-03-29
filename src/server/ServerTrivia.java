@@ -75,7 +75,11 @@ public class ServerTrivia {
         Question question = questionBank.getQuestion(answer.getQuestionId());
 
 
-        System.out.print(answer.getQuestionId());
+        System.out.println("answer question ID: " + answer.getQuestionId());
+        System.out.println("answer question ID: " + answer.getSelectedOption());
+        System.out.println("question ID: " + questionBank.getQuestion(answer.getQuestionId()).getQuestionNumber());
+        System.out.println("question ID: " + questionBank.getQuestion(answer.getQuestionId()).getQuestionText());
+        System.out.println("question ID: " + questionBank.getQuestion(answer.getQuestionId()).getCorrectAnswer());
 
 
         return question != null && 
@@ -114,7 +118,6 @@ public class ServerTrivia {
                 
                 initializeClientScore(clientID);
                 activeClients.put(clientID, clientThread);
-                broadcastQuestionOneClient(currentQuestion, clientThread);;
                 executorService.submit(clientThread);
             }
 
@@ -235,16 +238,6 @@ public class ServerTrivia {
         });
     }
 
-    // Added by Eric - Broadcasts question to one client
-    private void broadcastQuestionOneClient(Question question, ClientThread client) {
-        try {
-            client.sendQuestion(question);
-            System.out.println("send question");
-        } catch (IOException e) {
-            System.err.println("Error sending question to client " + client.getClientId());
-        }
-    }
-
     // Added by Brooks - Ends game and announces final scores
     private void endGame() {
         gameActive = false;
@@ -281,6 +274,10 @@ public class ServerTrivia {
     public void removeClient(int clientID) {
         activeClients.remove(clientID);
         System.out.println("Client " + clientID + " removed");
+    }
+
+    public Question getCurrentQuestion() {
+        return currentQuestion;
     }
 
     // Added by Eric - main method to start trivia server

@@ -44,6 +44,7 @@ public class ClientThread implements Runnable {
             
             // Added by Brooks - Send initial score to client
             sendMessage(new TCPMessage(TCPMessage.MessageType.SCORE_UPDATE, server.getClientScore(id)));
+            sendMessage(new TCPMessage(TCPMessage.MessageType.QUESTION, server.getCurrentQuestion()));
             
             // Added by Brooks - Continuous message processing loop
             while (isActive) {
