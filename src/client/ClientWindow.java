@@ -57,9 +57,6 @@ public class ClientWindow implements ActionListener {
         
         // Start TCP listener
         new Thread(this::listenForTcpMessages).start();
-        
-        // Load first question
-        loadNextQuestion();
     }
 
     // Added by Eric - Reads server configuration
@@ -323,7 +320,7 @@ public class ClientWindow implements ActionListener {
         JOptionPane.showMessageDialog(window, 
             isCorrect ? "Correct! +10 points" : "Wrong! -10 points");
         
-        loadNextQuestion();
+        //loadNextQuestion();
     }
 
     // Added by Brooks - Loads next question from bank
@@ -377,7 +374,7 @@ public class ClientWindow implements ActionListener {
 
                 System.out.print(currentQuestion.getQuestionNumber());
 
-                
+
 
                 tcpOut.writeObject(answer);
                 tcpOut.flush();
