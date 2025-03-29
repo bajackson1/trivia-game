@@ -185,17 +185,21 @@ public class ClientWindow implements ActionListener {
                     break;
                     
                 case CORRECT:
-                    updateScore((Integer) message.getPayload());
+                    playerScore += 10;
+                    updateScore(playerScore);
                     showFeedback(true);
                     break;
                     
                 case WRONG:
-                    updateScore((Integer) message.getPayload());
+                    playerScore -= 10;
+                    updateScore(playerScore);
                     showFeedback(false);
                     break;
-                    
-                case NEXT:
-                    loadNextQuestion();
+
+                case TIMEOUT:
+                    playerScore -= 20;
+                    updateScore(playerScore);
+                    showFeedback(false);
                     break;
                     
                 case GAME_OVER:
@@ -207,8 +211,8 @@ public class ClientWindow implements ActionListener {
                     break;
                 
                 case KILL_CLIENT:
-                killClient();
-                break;
+                    killClient();
+                    break;
             }
         });
     }
@@ -283,28 +287,31 @@ public class ClientWindow implements ActionListener {
     }
 
     // Added by Brooks - Handles ACK from server
+    // Modified by Eric - Polling disabled
     private void handleAck() {
         System.out.println("Received ACK from server");
-        SwingUtilities.invokeLater(() -> {
-            poll.setEnabled(false);
-            submit.setEnabled(true);
-            for (JRadioButton option : options) {
-                option.setEnabled(true);
-            }
-            
-            // Reduce timer duration
-            if (clock != null) {
-                clock.cancel();
-            }
-            clock = new TimerCode(10, true);
-            new Timer().schedule(clock, 0, 1000);
-        });
+        poll.setEnabled(false);
+        submit.setEnabled(true);
+        for (JRadioButton option : options) {
+            option.setEnabled(true);
+        }
+        
+        if (clock != null) {
+            clock.cancel();
+        }
+        clock = new TimerCode(10, true);
+        new Timer().schedule(clock, 0, 1000);
     }
 
     // Added by Brooks - Handles NACK from server
+    // Modified by Eric - disabled polling, cancels the buzzing timer and replaces with too slow text
     private void handleNack() {
+        System.out.println("Received NACK from server");
         poll.setEnabled(false);
-        JOptionPane.showMessageDialog(window, "Too slow! Another player buzzed first.");
+        if (clock != null) {
+            clock.cancel();
+        }
+        timer.setText("Too slow! Please wait.");
     }
 
     // Added by Brooks - Updates score display
@@ -384,6 +391,7 @@ public class ClientWindow implements ActionListener {
     }
 
     // Modified by Brooks - Enhanced timer class
+    // Modified by Eric - removes local penalty application and waits for TIMEOUT of QUESTION
     private class TimerCode extends TimerTask {
         private int duration;
         private boolean isAnswerPeriod;
@@ -398,21 +406,7 @@ public class ClientWindow implements ActionListener {
             SwingUtilities.invokeLater(() -> {
                 if (duration < 0) {
                     timer.setText("Time expired");
-                    if (isAnswerPeriod) {
-                        playerScore -= 20;
-                        score.setText("SCORE: " + playerScore);
-                        JOptionPane.showMessageDialog(window, "Time's up! -20 points");
-                    }
                     this.cancel();
-                    
-                    if (isAnswerPeriod) {
-                        new Timer().schedule(new TimerTask() {
-                            @Override
-                            public void run() {
-                                loadNextQuestion();
-                            }
-                        }, 1500);
-                    }
                 } else {
                     timer.setForeground(duration < 6 ? Color.RED : Color.BLUE);
                     timer.setText(duration + "");

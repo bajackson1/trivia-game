@@ -24,6 +24,7 @@ public class ClientThread implements Runnable {
     private final BlockingQueue<UDPMessage> messageQueue = new LinkedBlockingQueue<>();
     private ObjectOutputStream out;       // Added by Brooks - TCP output stream
     private boolean isActive = true;      // Added by Brooks - Connection status flag
+    private volatile PlayerAnswer answer = null; // Added by Eric - safe player answer
 
     // Added by Eric - Contructor for the client thread
     // Modified by Brooks - Added server reference
@@ -70,17 +71,19 @@ public class ClientThread implements Runnable {
         }
     }
 
-    // Added by Brooks - Processes and validates player answers
+    // Added by Eric - Processes player answer
     private void processAnswer(PlayerAnswer answer) throws IOException {
-        boolean isCorrect = server.validateAnswer(answer);
-        int scoreDelta = isCorrect ? 10 : -10;
-        server.updateClientScore(id, scoreDelta);
-        
-        TCPMessage response = new TCPMessage(
-            isCorrect ? TCPMessage.MessageType.CORRECT : TCPMessage.MessageType.WRONG,
-            server.getClientScore(id)
-        );
-        sendMessage(response);
+        this.answer = answer;
+    }
+
+    // Added by Eric - Get player answer
+    public PlayerAnswer getAnswer() {
+        return answer;
+    }
+
+    // Added by Eric - Clear player answer
+    public void clearAnswer() {
+        this.answer = null;
     }
 
     // Added by Brooks - Sends a new question to the client
@@ -98,15 +101,25 @@ public class ClientThread implements Runnable {
         sendMessage(new TCPMessage(TCPMessage.MessageType.NACK));
     }
     
-    // Added by Brooks - Signals transition to next question
-    public void sendNextQuestion() throws IOException {
-        sendMessage(new TCPMessage(TCPMessage.MessageType.NEXT));
-    }
-    
     // Added by Brooks - Terminates client connection gracefully
     public void sendGameOver() throws IOException {
         sendMessage(new TCPMessage(TCPMessage.MessageType.GAME_OVER));
         isActive = false;
+    }
+
+    // Added by Eric - Notifies client if they answered correctly
+    public void sendRight() throws IOException {
+        sendMessage(new TCPMessage(TCPMessage.MessageType.CORRECT));
+    }
+
+    // Added by Eric - Notifies client if they answered wrong
+    public void sendWrong() throws IOException {
+        sendMessage(new TCPMessage(TCPMessage.MessageType.WRONG));
+    }
+
+    // Added by Eric - Notifies client if they did not send answer in time
+    public void sendTimeout() throws IOException {
+        sendMessage(new TCPMessage(TCPMessage.MessageType.TIMEOUT));
     }
     
     // Added by Brooks - Cleans up network resources

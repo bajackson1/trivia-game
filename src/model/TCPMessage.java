@@ -12,7 +12,7 @@ public class TCPMessage implements Serializable {
         NACK,         // Negative acknowledgment for late buzz
         CORRECT,      // Server confirms correct answer
         WRONG,        // Server indicates wrong answer
-        NEXT,         // Command to move to next question
+        TIMEOUT,      // Server indicates no answer
         SCORE_UPDATE, // Broadcast updated scores
         GAME_OVER,     // Signals end of game
         KILL_CLIENT   // Kills the client.
