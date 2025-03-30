@@ -98,7 +98,7 @@ public class ServerTrivia {
             executorService.submit(udpThread);
 
             // Start game question loop
-            // Thread.sleep(10000);                                                  // MAKE GAME WAIT FOR 10 SEC FOR PEOPLE TO JOIN.
+             Thread.sleep(10000);                                                  // MAKE GAME WAIT FOR 10 SEC FOR PEOPLE TO JOIN.
             startGame();
 
             // Accept client connections
