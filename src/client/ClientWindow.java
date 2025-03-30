@@ -222,6 +222,7 @@ public class ClientWindow implements ActionListener {
 
                     case ELIGIBILITY:
                     this.eligibility = true;
+                    poll.setEnabled(true);
                     break;
             }
         });
