@@ -98,7 +98,7 @@ public class ServerTrivia {
             executorService.submit(udpThread);
 
             // Start game question loop
-            Thread.sleep(10000);                                                  // MAKE GAME WAIT FOR 10 SEC FOR PEOPLE TO JOIN.
+            // Thread.sleep(10000);                                                  // MAKE GAME WAIT FOR 10 SEC FOR PEOPLE TO JOIN.
             startGame();
 
             // Accept client connections
@@ -144,7 +144,7 @@ public class ServerTrivia {
             try {
                 while (gameActive && questionBank.hasMoreQuestions()) {
                     currentQuestion = questionBank.getNextQuestion();
-                    Thread.sleep(5000);                                     //SLEEP THREAD TO GIVE TIME BETWEEN SUBMIT AND NEXT QUESTION.
+                    // Thread.sleep(5000);                                     //SLEEP THREAD TO GIVE TIME BETWEEN SUBMIT AND NEXT QUESTION.
                    eligibility();
                     broadcastQuestion(currentQuestion);
                     udpThread.clearBuzzQueue(); // Reset the buzz queue
