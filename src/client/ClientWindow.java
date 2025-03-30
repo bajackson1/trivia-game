@@ -255,7 +255,7 @@ public class ClientWindow implements ActionListener {
         System.out.print("load");
         resetForNewQuestion();
         } catch (NullPointerException e) {
-            System.err.println("Error: The question object is null.");
+            System.err.println("");
         } catch (Exception e) {
             System.err.println("An unexpected error occurred: " + e.getMessage());
         }
