@@ -241,9 +241,16 @@ public class ClientWindow implements ActionListener {
     // Added by Brooks - Loads and displays new question
     private void loadQuestion(Question question) {
         this.currentQuestion = question;
-        this.question.setText("<html>Q" + question.getQuestionNumber() + 
-                           ". " + question.getQuestionText() + "</html>");
         
+        try {
+            // Assuming `question` is already defined and initialized
+            this.question.setText("<html>Q" + question.getQuestionNumber() + 
+                                   ". " + question.getQuestionText() + "</html>");
+        } catch (NullPointerException e) {
+            System.err.println("Error: The question object is null.");
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+        }
         String[] currentOptions = question.getOptions();
         for (int i = 0; i < options.length; i++) {
             options[i].setText(currentOptions[i]);
