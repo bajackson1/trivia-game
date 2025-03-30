@@ -246,12 +246,7 @@ public class ClientWindow implements ActionListener {
             // Assuming `question` is already defined and initialized
             this.question.setText("<html>Q" + question.getQuestionNumber() + 
                                    ". " + question.getQuestionText() + "</html>");
-        } catch (NullPointerException e) {
-            System.err.println("Error: The question object is null.");
-        } catch (Exception e) {
-            System.err.println("An unexpected error occurred: " + e.getMessage());
-        }
-        String[] currentOptions = question.getOptions();
+                                   String[] currentOptions = question.getOptions();
         for (int i = 0; i < options.length; i++) {
             options[i].setText(currentOptions[i]);
             options[i].setSelected(false);
@@ -259,6 +254,12 @@ public class ClientWindow implements ActionListener {
         
         System.out.print("load");
         resetForNewQuestion();
+        } catch (NullPointerException e) {
+            System.err.println("Error: The question object is null.");
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage());
+        }
+        
     }
 
     // Added by Brooks - Resets UI for new question
