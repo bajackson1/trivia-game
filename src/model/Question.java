@@ -13,6 +13,7 @@ public class Question implements Serializable {
     private int questionNumber;
 
     // Added by Brooks
+    // Modified by Eric - Uses question number embedded in Question
     public Question(String questionText, String[] options, char correctAnswer, int questionNumber) {
         this.questionText = questionText;
         this.options = options;
@@ -24,5 +25,5 @@ public class Question implements Serializable {
     public String getQuestionText() { return questionText; }
     public String[] getOptions() { return options; }
     public char getCorrectAnswer() { return correctAnswer; }
-    public int getQuestionNumber() { return questionNumber; }
+    public int getQuestionNumber() { return questionNumber; } // Added by Eric
 }

@@ -6,6 +6,8 @@ import java.io.Serializable;
 // This class defines all possible message types and carries payload data when needed
 public class TCPMessage implements Serializable {
     // Added by Brooks - Enumeration of all possible message types
+    // Modified by Eric - Removed NEXT and utilizing QUESTION as the NEXT
+    //                  - Added the TIMEOUT message for when the ack client does not answer
     public enum MessageType {
         QUESTION,     // Server sends question to clients
         ACK,          // Positive acknowledgment for first buzz

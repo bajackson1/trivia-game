@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+// Added by Brooks - Data storage of all of the questions for the Trivia game
 public class QuestionBank {
     private List<Question> questions;
     private int currentQuestionIndex;
@@ -18,7 +19,8 @@ public class QuestionBank {
         loadQuestionsFromFile();
     }
     
-    // Load questions from config file
+    // Added by Brooks - Load questions from config file
+    // Modified by Eric - start index at 1 to match the question number, added the question number as well for client use
     private void loadQuestionsFromFile() {
         try (BufferedReader reader = new BufferedReader(
             new FileReader(Paths.get("config", "questions.txt").toFile()))) {
@@ -43,7 +45,7 @@ public class QuestionBank {
         }
     }
     
-    // Fallback if file loading fails
+    // Added by Brooks - Fallback if file loading fails
     private void loadDefaultQuestions() {
         questions.add(new Question(
             "Who holds the single-game points record?",
@@ -53,6 +55,7 @@ public class QuestionBank {
         ));
     }
     
+    // Added by Brooks - Getters for question fields
     public Question getNextQuestion() {
         return hasMoreQuestions() ? questions.get(currentQuestionIndex++) : null;
     }
@@ -65,6 +68,7 @@ public class QuestionBank {
         return currentQuestionIndex + 1;
     }
 
+    // Modified by Eric - Makes sure to align the question number and question ID
     public Question getQuestion(int questionId) {
         if (questionId >= 1 && questionId <= questions.size()) {
             return questions.get(questionId - 1);

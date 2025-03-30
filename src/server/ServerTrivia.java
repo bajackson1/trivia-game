@@ -137,8 +137,8 @@ public class ServerTrivia {
     }
 
     // Added by Brooks - Manages the game question flow in separate thread
-    // Modified by Eric - Added ACK/NACK logic, answer handling, thread timing logic
-    //Modified by Pierce - updates client eligibilities before sending a question to the client.
+    // Modified by Eric - Added ACK/NACK logic, answer handling, thread timing logic with sleeps and loops, resets Buzz queue and answer of client
+    // Modified by Pierce - updates client eligibilities before sending a question to the client.
     private void startGame() {
         new Thread(() -> {
             try {
@@ -146,7 +146,7 @@ public class ServerTrivia {
                 while (gameActive && questionBank.hasMoreQuestions()) {
                     currentQuestion = questionBank.getNextQuestion();
                     // Thread.sleep(5000);                                     //SLEEP THREAD TO GIVE TIME BETWEEN SUBMIT AND NEXT QUESTION.
-                   eligibility();
+                    eligibility();
                     broadcastQuestion(currentQuestion);
                     udpThread.clearBuzzQueue(); // Reset the buzz queue
 
@@ -285,6 +285,7 @@ public class ServerTrivia {
         System.out.println("Client " + clientID + " removed");
     }
 
+    // Added by Eric - Method to get the current question the game server/loop sent to the clients
     public Question getCurrentQuestion() {
         return currentQuestion;
     }

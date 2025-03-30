@@ -8,7 +8,6 @@ import javax.swing.*;
 
 import model.PlayerAnswer;
 import model.Question;
-import model.QuestionBank;
 import model.TCPMessage;
 import model.UDPMessage;
 
@@ -172,12 +171,12 @@ public class ClientWindow implements ActionListener {
     }
 
     // Added by Brooks - Handles different message types
+    // Modified by Eric - Correctly handles the flow of the game using the various methods implemented, Question message serves as the "NEXT"
     private void processTcpMessage(TCPMessage message) {
         SwingUtilities.invokeLater(() -> {
             System.out.print(message.getType());
             switch (message.getType()) {
                 case QUESTION:
-                    System.out.print("switch case");
                     currentQuestion = (Question) message.getPayload();
                     loadQuestion(currentQuestion);
                     break;
@@ -228,6 +227,7 @@ public class ClientWindow implements ActionListener {
         });
     }
 
+    // Added by Pierce
     private void killClient(){
         JOptionPane.showMessageDialog(window, "You have been terminated by the server.");
         try {
@@ -244,6 +244,7 @@ public class ClientWindow implements ActionListener {
         
         try {
             // Assuming `question` is already defined and initialized
+            // Modified by Eric - utilize new question methods after Question class modifications
             this.question.setText("<html>Q" + question.getQuestionNumber() + 
                                    ". " + question.getQuestionText() + "</html>");
                                    String[] currentOptions = question.getOptions();
@@ -281,7 +282,7 @@ public class ClientWindow implements ActionListener {
     }
 
     // Added by Brooks - Handles poll button click
-    //Modified by Pierce - Poll should be able to be spammed until timer reaches 0(client recieves message from serv).
+    // Modified by Pierce - Poll should be able to be spammed until timer reaches 0(client recieves message from serv).
     private void handlePoll() {
         sendBuzzMessage();
     }
@@ -343,6 +344,7 @@ public class ClientWindow implements ActionListener {
     }
 
     // Added by Brooks - Shows feedback popup
+    // Modified by Eric - Three different types of popups with point gain/loss instead of just right/wrong
     private void showFeedback(int number) {
         String display;
         if (number == 1) {
@@ -353,15 +355,6 @@ public class ClientWindow implements ActionListener {
             display = "Timeout! -20 points :(";
         }
         JOptionPane.showMessageDialog(window, display);
-    }
-
-    // Added by Brooks - Loads next question from bank
-    private void loadNextQuestion() {
-        if (currentQuestion == null) {
-            endGame();
-            return;
-        }
-        loadQuestion(currentQuestion);
     }
 
     // Added by Brooks - Ends game session
@@ -386,6 +379,7 @@ public class ClientWindow implements ActionListener {
     }
 
     // Added by Brooks - Handles answer submission
+    // Modified by Eric - Correctly uses new question number method
     private void handleSubmit() {
         char selectedAnswer = ' ';
         for (int i = 0; i < options.length; i++) {
@@ -401,13 +395,6 @@ public class ClientWindow implements ActionListener {
                     currentQuestion.getQuestionNumber(),
                     selectedAnswer
                 );
-
-
-
-                System.out.print(currentQuestion.getQuestionNumber());
-
-
-
                 tcpOut.writeObject(answer);
                 tcpOut.flush();
                 submit.setEnabled(false);

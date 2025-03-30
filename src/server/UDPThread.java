@@ -59,11 +59,13 @@ public class UDPThread implements Runnable{
         }
     }
 
+    // Added by Eric - Resets the buzz queue after the game loop for one question finishes in the server
     public void clearBuzzQueue() {
         buzzQueue.clear();
         latestTimestamp = Long.MIN_VALUE;
     }
 
+    // Added by Eric - Allows the server to get the ID of the first buzzed client
     public Integer getFirstBuzzedClient() {
         return buzzQueue.poll();
     }
