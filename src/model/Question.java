@@ -10,7 +10,7 @@ public class Question implements Serializable {
     private String questionText;
     private String[] options;
     private char correctAnswer;
-    private int questionNumber;
+    private int questionNumber = 0;
 
     // Added by Brooks
     public Question(String questionText, String[] options, char correctAnswer, int questionNumber) {
