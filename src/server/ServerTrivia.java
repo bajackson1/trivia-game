@@ -215,6 +215,7 @@ public class ServerTrivia {
                     } else {
                         System.out.println("No one buzzed for question " + currentQuestion.getQuestionText());
                     }
+                    Thread.sleep(5000); 
                 }
                 endGame();
             } catch (InterruptedException e) {
