@@ -73,8 +73,14 @@ public class ClientThread implements Runnable {
     }
 
     // Added by Eric - Processes player answer
+    // Modified by Brooks - Added better error handling for answer processing
     private void processAnswer(PlayerAnswer answer) throws IOException {
-        this.answer = answer;
+        if (answer != null) {
+            this.answer = answer;
+            System.out.println("Received answer from client " + id + 
+                             " for Q" + answer.getQuestionId() + 
+                             ": " + answer.getSelectedOption());
+        }
     }
 
     // Added by Eric - Get player answer

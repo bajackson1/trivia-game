@@ -14,13 +14,11 @@ public class UDPThread implements Runnable{
     private DatagramSocket socket;
     private ServerTrivia server;
     private Queue<Integer> buzzQueue;
-    private long latestTimestamp;
-
+    
     public UDPThread(DatagramSocket socket, ServerTrivia server) {
         this.socket = socket;
         this.server = server;
         this.buzzQueue = new ConcurrentLinkedQueue<>();
-        this.latestTimestamp = Long.MIN_VALUE;
     }
 
     // Added by Eric - Method to listen for incoming UDP packets from all clients
@@ -60,9 +58,12 @@ public class UDPThread implements Runnable{
     }
 
     // Added by Eric - Resets the buzz queue after the game loop for one question finishes in the server
+    // Modified by Brooks - Improved queue clearing
     public void clearBuzzQueue() {
-        buzzQueue.clear();
-        latestTimestamp = Long.MIN_VALUE;
+        if (!buzzQueue.isEmpty()) {
+            System.out.println("Clearing buzz queue: " + buzzQueue);
+            buzzQueue.clear();
+        }
     }
 
     // Added by Eric - Allows the server to get the ID of the first buzzed client
@@ -70,33 +71,23 @@ public class UDPThread implements Runnable{
         return buzzQueue.poll();
     }
 
+    // Added by Brooks - Added method to check if buzz queue is empty
+    public boolean isBuzzQueueEmpty() {
+        return buzzQueue.isEmpty();
+    }
+
     // Added by Eric - Method to process the buzz while maintaining timestamp order
+    // Modified by Brooks - Simplified buzz processing for extra credit feature
     private void processBuzz(ClientThread clientThread, UDPMessage receivedMessage) {
         if (clientThread != null) {
             Integer clientID = clientThread.getClientId();
-            long timestamp = receivedMessage.getTimestamp(); // Get timestamp from message
-    
-            // If the packet timestamp is newer than the latest, just add it
-            if (timestamp > latestTimestamp) {
-                latestTimestamp = timestamp;
+            
+            // Prevent duplicate buzzes from same client
+            if (!buzzQueue.contains(clientID)) {
                 buzzQueue.add(clientID);
-                System.out.println("Newer packet received. Client " + clientID + " added to queue.");
-            } else {
-                // If the packet timestamp is older, we need to handle out-of-order packets
-                Queue<Integer> tempQueue = new ConcurrentLinkedQueue<>(buzzQueue);
-    
-                // Clear the main queue and add the new packet
-                buzzQueue.clear();
-                buzzQueue.add(clientID);
-    
-                // Reinsert all previous clients
-                for (Integer id : tempQueue) {
-                    buzzQueue.add(id);
-                }
-    
-                System.out.println("Older packet received. Requeueing with Client " + clientID + " added at the front.");
+                System.out.println("Client " + clientID + " added to buzz queue");
             }
-    
+            
             System.out.println("Current Queue: " + buzzQueue);
         } else {
             System.out.println("Client not found for IP: " + receivedMessage.getClientIP());

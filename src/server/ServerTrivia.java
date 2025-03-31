@@ -141,84 +141,92 @@ public class ServerTrivia {
     // Added by Brooks - Manages the game question flow in separate thread
     // Modified by Eric - Added ACK/NACK logic, answer handling, thread timing logic with sleeps and loops, resets Buzz queue and answer of client
     // Modified by Pierce - updates client eligibilities before sending a question to the client.
+    // Modified by Brooks - Added logic for extra credit
     private void startGame() {
         new Thread(() -> {
             try {
-                Thread.sleep(10000);
+                Thread.sleep(10000); // Initial wait for players to join
                 while (gameActive && questionBank.hasMoreQuestions()) {
                     currentQuestion = questionBank.getNextQuestion();
-                    // Thread.sleep(5000);                                     //SLEEP THREAD TO GIVE TIME BETWEEN SUBMIT AND NEXT QUESTION.
                     eligibility();
                     broadcastQuestion(currentQuestion);
                     udpThread.clearBuzzQueue(); // Reset the buzz queue
 
                     // Wait 15 seconds for buzzes
                     Thread.sleep(15000);
-    
-                    // Process the first buzz
-                    Integer firstBuzzClient = udpThread.getFirstBuzzedClient(); // Get and remove the first client
-                    if (firstBuzzClient != null) {
-                        ClientThread ackClient = activeClients.get(firstBuzzClient);
-                        if (ackClient != null) {
-                            // Send ACK to answering client
-                            try {
-                                ackClient.sendAck();
-                            } catch (IOException e) {
-                                System.err.println("Error sending ACK to client " + ackClient.getClientId());
-                            }
-                            ackClient.clearAnswer(); 
-    
-                            // Send NACK to all other active clients
-                            activeClients.values().forEach(c -> {
-                                if (c.getClientId() != firstBuzzClient) {
-                                    try {
-                                        c.sendNack();
-                                    } catch (IOException e) {
-                                        System.err.println("Error sending NACK to client " + c.getClientId());
-                                    }
-                                }
-                            });
-    
-                            // Wait up to 10 seconds for the answer
-                            long startTime = System.currentTimeMillis();
-                            PlayerAnswer answer = null;
-                            while (System.currentTimeMillis() - startTime < 10000) {
-                                answer = ackClient.getAnswer();
-                                if (answer != null) {
-                                    if (validateAnswer(answer)) {
-                                        updateClientScore(firstBuzzClient, 10);
-                                        try {
-                                            ackClient.sendRight();
-                                        } catch (IOException e) {
-                                            System.err.println("Error sending RIGHT to client " + ackClient.getClientId());
-                                        }
-                                    } else {
-                                        updateClientScore(firstBuzzClient, -10);
-                                        try {
-                                            ackClient.sendWrong();
-                                        } catch (IOException e) {
-                                            System.err.println("Error sending WRONG to client " + ackClient.getClientId());
-                                        }
-                                    }
-                                    break; // Exit loop once answer is received
-                                }
-                                Thread.sleep(100); // Check every 100ms
-                            }
-                            if (answer == null) { // No answer received after 10 seconds
-                                updateClientScore(firstBuzzClient, -20);
+
+                    // NEW: Flag to track if question was answered correctly
+                    boolean correctAnswerReceived = false;
+                    
+                    // NEW: Process buzzes in order until correct answer or queue empty
+                    while (!correctAnswerReceived && !udpThread.isBuzzQueueEmpty()) {
+                        Integer answeringClientId = udpThread.getFirstBuzzedClient();
+                        if (answeringClientId != null) {
+                            ClientThread answeringClient = activeClients.get(answeringClientId);
+                            if (answeringClient != null) {
+                                // Send ACK to answering client
                                 try {
-                                    ackClient.sendTimeout();
+                                    answeringClient.sendAck();
                                 } catch (IOException e) {
-                                    System.err.println("Error sending TIMEOUT to client " + ackClient.getClientId());
+                                    System.err.println("Error sending ACK to client " + answeringClientId);
+                                    continue;
                                 }
+                                answeringClient.clearAnswer();
+
+                                // Send NACK to all other active clients
+                                activeClients.values().forEach(c -> {
+                                    if (c.getClientId() != answeringClientId) {
+                                        try {
+                                            c.sendNack();
+                                        } catch (IOException e) {
+                                            System.err.println("Error sending NACK to client " + c.getClientId());
+                                        }
+                                    }
+                                });
+
+                                // Wait up to 10 seconds for the answer
+                                long startTime = System.currentTimeMillis();
+                                PlayerAnswer answer = null;
+                                while (System.currentTimeMillis() - startTime < 10000) {
+                                    answer = answeringClient.getAnswer();
+                                    if (answer != null) {
+                                        if (validateAnswer(answer)) {
+                                            updateClientScore(answeringClientId, 10);
+                                            try {
+                                                answeringClient.sendRight();
+                                            } catch (IOException e) {
+                                                System.err.println("Error sending RIGHT to client " + answeringClientId);
+                                            }
+                                            correctAnswerReceived = true;
+                                        } else {
+                                            updateClientScore(answeringClientId, -10);
+                                            try {
+                                                answeringClient.sendWrong();
+                                            } catch (IOException e) {
+                                                System.err.println("Error sending WRONG to client " + answeringClientId);
+                                            }
+                                            // NEW: Break to give next client a chance
+                                            break;
+                                        }
+                                        break; // Exit loop once answer is received
+                                    }
+                                    Thread.sleep(100); // Check every 100ms
+                                }
+
+                                if (answer == null) { // No answer received after 10 seconds
+                                    updateClientScore(answeringClientId, -20);
+                                    try {
+                                        answeringClient.sendTimeout();
+                                    } catch (IOException e) {
+                                        System.err.println("Error sending TIMEOUT to client " + answeringClientId);
+                                    }
+                                    // NEW: Timeout - break to give next client a chance
+                                }
+                                answeringClient.clearAnswer();
                             }
-                            ackClient.clearAnswer();
                         }
-                        udpThread.clearBuzzQueue(); // Empty remaining buzzes
-                    } else {
-                        System.out.println("No one buzzed for question " + currentQuestion.getQuestionText());
                     }
-                    Thread.sleep(5000); 
+                    Thread.sleep(5000); // Brief pause between questions
                 }
                 endGame();
             } catch (InterruptedException e) {
