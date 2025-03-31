@@ -11,13 +11,13 @@ import model.Question;
 import model.TCPMessage;
 import model.UDPMessage;
 
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
 // Modified by Brooks - Client GUI for multiplayer trivia game
 // Handles all user interaction and network communication
 public class ClientWindow implements ActionListener {
-
     // UI Components
     private JButton poll;
     private JButton submit;
@@ -26,41 +26,33 @@ public class ClientWindow implements ActionListener {
     private JLabel question;
     private JLabel timer;
     private JLabel score;
+    private JTextArea leaderboardArea;
+    private JScrollPane leaderboardScroll;
     private TimerTask clock;
     private JFrame window;
     
     // Game State
     private Question currentQuestion;
     private int playerScore = 0;
+    private boolean eligibility = false;
     
     // Network Configuration
     private String serverIP;
     private int TCPserverPort;
     private int UDPserverPort;
     
-    // Added by Brooks - TCP network connections
+    // Network Connections
     private ObjectInputStream tcpIn;
     private ObjectOutputStream tcpOut;
-
-    // Added by Pierce - To disable poll button until server allows client to answer questions(handles midgame joining)
-    private boolean eligibility;
 
     // Added by Eric - Client window constructor
     // Modified by pierce - start eligibility as false for each client.
     public ClientWindow() {
-
         this.eligibility = false;
-        // Initialize UI first
         initializeUI();
-        
-        // Then configure network
         readConfig();
         connectToServer();
-        
-        // Show the window immediately
         window.setVisible(true);
-        
-        // Start TCP listener
         new Thread(this::listenForTcpMessages).start();
     }
 
@@ -80,15 +72,23 @@ public class ClientWindow implements ActionListener {
     // Added by Brooks - Initializes all UI components
     // Modified by Pierce - disabled pol button at the start of running the code.
     private void initializeUI() {
-        
         window = new JFrame("Trivia Client");
-        window.setSize(400, 400);
-        window.setLayout(null);
+        window.setSize(600, 400); // Wider window for leaderboard
+        window.setLayout(new BorderLayout(10, 10));
+        window.getContentPane().setBackground(new Color(240, 240, 240));
+
+        // Main game panel (left side)
+        JPanel gamePanel = new JPanel();
+        gamePanel.setLayout(null);
+        gamePanel.setPreferredSize(new Dimension(350, 400));
+        gamePanel.setBackground(new Color(250, 250, 250));
+        gamePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        // Question label with word wrapping
-        question = new JLabel("<html>Waiting for first question...</html>");
-        question.setBounds(10, 5, 380, 100);
-        window.add(question);
+        // Question area
+        question = new JLabel("<html><div style='width:330px;'>Waiting for game to start...</div></html>");
+        question.setBounds(10, 10, 330, 100);
+        question.setFont(new Font("Arial", Font.PLAIN, 14));
+        gamePanel.add(question);
         
         // Answer options
         options = new JRadioButton[4];
@@ -96,40 +96,81 @@ public class ClientWindow implements ActionListener {
         for(int i = 0; i < options.length; i++) {
             options[i] = new JRadioButton("Option " + (i+1));
             options[i].addActionListener(this);
-            options[i].setBounds(10, 110 + (i * 30), 350, 25);
+            options[i].setBounds(10, 120 + (i * 30), 330, 25);
+            options[i].setFont(new Font("Arial", Font.PLAIN, 12));
             options[i].setEnabled(false);
-            window.add(options[i]);
+            gamePanel.add(options[i]);
             optionGroup.add(options[i]);
         }
         
         // Timer display
-        timer = new JLabel("15", SwingConstants.CENTER);
-        timer.setBounds(250, 250, 50, 20);
+        timer = new JLabel("", SwingConstants.CENTER);
+        timer.setBounds(150, 250, 50, 20);
+        timer.setFont(new Font("Arial", Font.BOLD, 16));
         timer.setForeground(Color.BLUE);
-        window.add(timer);
+        gamePanel.add(timer);
         
         // Score display
         score = new JLabel("SCORE: 0");
         score.setBounds(50, 250, 100, 20);
-        window.add(score);
+        score.setFont(new Font("Arial", Font.BOLD, 14));
+        gamePanel.add(score);
         
-        // Poll button
+        // Buttons
         poll = new JButton("Poll");
         poll.setBounds(50, 300, 100, 30);
         poll.addActionListener(this);
         poll.setEnabled(false);
-        window.add(poll);
+        gamePanel.add(poll);
         
-        
-        // Submit button
         submit = new JButton("Submit");
-        submit.setBounds(250, 300, 100, 30);
+        submit.setBounds(200, 300, 100, 30);
         submit.addActionListener(this);
         submit.setEnabled(false);
-        window.add(submit);
+        gamePanel.add(submit);
+
+        // Leaderboard panel (right side)
+        JPanel leaderboardPanel = new JPanel();
+        leaderboardPanel.setLayout(new BorderLayout());
+        leaderboardPanel.setPreferredSize(new Dimension(220, 400));
+        leaderboardPanel.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createTitledBorder("Leaderboard"),
+            BorderFactory.createEmptyBorder(5, 5, 5, 5)
+        ));
+        leaderboardPanel.setBackground(new Color(250, 250, 250));
+
+        leaderboardArea = new JTextArea();
+        leaderboardArea.setEditable(false);
+        leaderboardArea.setFont(new Font("Consolas", Font.BOLD, 12));
+        leaderboardArea.setMargin(new Insets(10, 10, 10, 10));
+        leaderboardArea.setBackground(new Color(240, 240, 240));
+        
+        leaderboardScroll = new JScrollPane(leaderboardArea);
+        leaderboardScroll.setBorder(BorderFactory.createEmptyBorder());
+        leaderboardPanel.add(leaderboardScroll, BorderLayout.CENTER);
+
+        // Add panels to main window
+        window.add(gamePanel, BorderLayout.WEST);
+        window.add(leaderboardPanel, BorderLayout.EAST);
         
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setVisible(true);
+    }
+
+    private void updateLeaderboard(Map<Integer, Integer> scores) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("%-12s %6s\n", "PLAYER", "SCORE"));
+        sb.append("-------------------\n");
+        
+        scores.entrySet().stream()
+            .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
+            .forEach(entry -> {
+                sb.append(String.format("%-12s %6d\n", 
+                    "Player " + entry.getKey(), 
+                    entry.getValue()));
+            });
+        
+        leaderboardArea.setText(sb.toString());
+        leaderboardArea.setCaretPosition(0); // Scroll to top
     }
 
     // Added by Brooks - Establishes server connection with proper resource management
@@ -212,7 +253,11 @@ public class ClientWindow implements ActionListener {
                     break;
                     
                 case SCORE_UPDATE:
-                    updateScore((Integer) message.getPayload());
+                    if (message.getPayload() instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<Integer, Integer> scores = (Map<Integer, Integer>) message.getPayload();
+                        updateLeaderboard(scores);
+                    }
                     break;
                 
                 case KILL_CLIENT:
@@ -409,11 +454,8 @@ public class ClientWindow implements ActionListener {
     // Modified by Eric - removes local penalty application and waits for TIMEOUT of QUESTION
     private class TimerCode extends TimerTask {
         private int duration;
-        private boolean isAnswerPeriod;
-        
         public TimerCode(int duration, boolean isAnswerPeriod) {
             this.duration = duration;
-            this.isAnswerPeriod = isAnswerPeriod;
         }
         
         @Override

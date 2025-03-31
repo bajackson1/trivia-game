@@ -7,6 +7,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -15,6 +16,7 @@ import java.util.concurrent.Executors;
 import model.PlayerAnswer;
 import model.Question;
 import model.QuestionBank;
+import model.TCPMessage;
 
 public class ServerTrivia {
     private ExecutorService executorService;
@@ -62,7 +64,7 @@ public class ServerTrivia {
     // Added by Brooks - Updates client score with positive/negative delta
     public void updateClientScore(int clientID, int delta) {
         clientScores.merge(clientID, delta, Integer::sum);
-        System.out.println("Client " + clientID + " score updated to: " + clientScores.get(clientID));
+        broadcastScores();
     }
     
     // Added by Brooks - Retrieves current score for specified client
@@ -235,6 +237,17 @@ public class ServerTrivia {
             }
         });
     }
+
+    private void broadcastScores() {
+    activeClients.values().forEach(client -> {
+        try {
+            client.sendMessage(new TCPMessage(TCPMessage.MessageType.SCORE_UPDATE, 
+                new HashMap<>(clientScores)));
+        } catch (IOException e) {
+            System.err.println("Error sending scores to client " + client.getClientId());
+        }
+    });
+}
 
     //Added by Pierce - sends ELIGIBILITY message to client allowing them to press the poll button.
     private void eligibility() {
