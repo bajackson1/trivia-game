@@ -25,6 +25,10 @@ with basic GUI and event handling code. You are free to use and modify the code 
 for your project. The classes are ClientWindow.java and ClientWindowTest.java. The code in these
 programs use simple Java Swing elements.
 
+## In-Depth Report
+
+In addition to this README file, we were tasked with creating a detailed project report, which can be found [here]().
+
 ## Group Members
 
 This project was completed by:

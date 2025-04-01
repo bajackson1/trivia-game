@@ -1,5 +1,10 @@
 # Project 2 - Final Report
 
+### Project Team
+- **Brooks Jackson**  
+- **Eric May**  
+- **Pierce Conway**
+
 ## Table of Contents
 1. [System Design](#system-design)
    - [Architecture Overview](#architecture-overview)
@@ -11,6 +16,8 @@
    - [TCP/UDP Communication](#tcpudp-communication)
    - [GUI Implementation](#gui-implementation)
    - [Game Logic](#game-logic)
+3. [Test Cases](#test-cases)
+4. [Installation and Usage](#installation-and-usage)
 
 ## System Design
 
@@ -173,3 +180,98 @@ The system follows a client-server architecture with:
 - Wrong answer: -10
 - Timeout: -20
 - First correct answer wins points
+
+### Test Cases
+
+The following is a list of the test cases we ran on our code. We wanted to go through an extensive testing process to make sure **all** of the project requirements were fulfilled.
+
+| Category | Test Case | Test Method | Expected Result | Status |
+| :--: | :--: | :--: | :--: | :--: |
+| **Connection** | Single client connects | Start server, connect 1 client | Client joins successfully | ✅ |
+| | Multiple clients connect | Connect 5 clients simultaneously | All clients join with unique IDs | ✅ |
+| | Client disconnects/reconnects | Disconnect client during game | Server detects disconnect | ✅ |
+| **Game Flow** | Full 20-question game | Play complete game | All questions delivered in order | ✅ |
+| | No buzzes received | Let buzz timer expire | Server moves to next question | ✅ |
+| | First buzz gets priority | 3 clients buzz, verify order | First buzzer gets ACK | ✅ |
+| **Answer Handling** | Correct answer submission | Client selects right option | +10 points, correct message | ✅ |
+| | Wrong answer submission | Client selects wrong option | -10 points, wrong message | ✅ |
+| | Answer timeout | Don't answer within 10s | -20 points, timeout message | ✅ |
+| **Scoring** | Score synchronization | Compare client/server scores | Scores match exactly | ✅ |
+| | Negative scores | Force wrong answers | Handles negative values | ✅ |
+| | Multiple correct rounds | Test consecutive right answers | Score accumulates properly | ✅ |
+
+### Installation and Usage
+
+#### Prerequesites
+
+- Java Runtime Environment (JRE) 17 or later
+   - You can verify you have this installed by running `java --version` in your terminal
+
+#### Installation
+
+##### How to play
+
+###### Configuration
+
+- **Set the correct IP address** in `config.txt` (change from 127.0.0.1 to server's real IP):
+  - **Windows**:
+    ```cmd
+    ipconfig | findstr "IPv4"
+    ```
+  - **macOS/Linux**:
+    ```bash
+    ifconfig | grep "inet " | grep -v 127.0.0.1
+    ```
+    or
+    ```bash
+    hostname -I
+    ```
+
+- **Firewall Commands** (run as admin/root) - optional but useful if you are having trouble connecting to the server:
+  - **Windows** (allow ports):
+    ```powershell
+    New-NetFirewallRule -DisplayName "TriviaGame" -Direction Inbound -Protocol TCP -LocalPort 7000 -Action Allow
+    New-NetFirewallRule -DisplayName "TriviaGame" -Direction Inbound -Protocol UDP -LocalPort 7001 -Action Allow
+    ```
+  - **macOS**:
+    ```bash
+    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --add /path/to/trivia-server.jar
+    sudo /usr/libexec/ApplicationFirewall/socketfilterfw --unblockapp /path/to/trivia-server.jar
+    ```
+  - **Linux** (UFW):
+    ```bash
+    sudo ufw allow 7000/tcp
+    sudo ufw allow 7001/udp
+    ```
+
+- **macOS Security Bypass** (first run):
+  1. Right-click the `.jar` file $\rightarrow$ "Open"
+  2. When blocked message appears:
+     - Go to System Settings $\rightarrow$ Privacy & Security
+     - Click "Open Anyway" under Security
+     - Confirm with password/Touch ID
+     - Re-open the `.jar` file
+
+###### Server admin
+   - Run `trivia-server.jar`
+   - Monitor connections in console
+
+###### Players
+   - Launch `trivia-client.jar`
+   - Use interface:
+      - Poll button: Buzz in to answer the question (UDP)
+      - Radio buttons: Select the correct answer
+      - Submit: Confirm the answer (TCP)
+
+###### Game flow
+-  20 Questions auto-progress
+- Real-time leaderboard updates
+- Winner announced after final question
+
+##### Troubleshooting
+
+| Issue | Solution |
+| :--: | :--: |
+| "Port in use" | Change ports in `config.txt` |
+| Connection timeout | Verify server IP/firewall |
+| Missing questions | Check `questions.txt` format |
