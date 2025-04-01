@@ -27,7 +27,7 @@ programs use simple Java Swing elements.
 
 ## In-Depth Report
 
-In addition to this README file, we were tasked with creating a detailed project report, which can be found [here]().
+In addition to this README file, we were tasked with creating a detailed project report, which can be found [here](https://github.com/bajackson1/trivia-game/blob/main/REPORT.pdf).
 
 ## Group Members
 
