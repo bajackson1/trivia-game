@@ -33,6 +33,6 @@ In addition to this README file, we were tasked with creating a detailed project
 
 This project was completed by:
 
-- Brooks Jackson (me)
+- [Brooks Jackson](https://github.com/bjaxqq)
 - [Eric May](https://github.com/ericmay33)
 - [Pierce Conway](https://github.com/piecon18)
