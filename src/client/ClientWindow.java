@@ -44,14 +44,21 @@ public class ClientWindow implements ActionListener {
     // Network Connections
     private ObjectInputStream tcpIn;
     private ObjectOutputStream tcpOut;
+    private Socket tcpSocket;
 
     // Added by Eric - Client window constructor
     // Modified by pierce - start eligibility as false for each client.
     public ClientWindow() {
         this.eligibility = false;
         initializeUI();
+        System.out.println("Initialized UI");
+    
         readConfig();
+        System.out.println("Read config");
+
         connectToServer();
+        System.out.println("Connected to server");
+
         window.setVisible(true);
         new Thread(this::listenForTcpMessages).start();
     }
@@ -175,22 +182,24 @@ public class ClientWindow implements ActionListener {
 
     // Added by Brooks - Establishes server connection with proper resource management
     private void connectToServer() {
-        Socket tcpSocket = null;
-        try {
-            tcpSocket = new Socket(serverIP, TCPserverPort);
-            tcpOut = new ObjectOutputStream(tcpSocket.getOutputStream());
-            tcpIn = new ObjectInputStream(tcpSocket.getInputStream());
-            System.out.println("Connected to server");
-        } catch (IOException e) {
-            JOptionPane.showMessageDialog(window, "Connection failed: " + e.getMessage());
+        System.out.println("Attempting to connect to server...");
+        while (true) { // Keep retrying until connected
             try {
-                if (tcpSocket != null) {
-                    tcpSocket.close();
+                tcpSocket = new Socket(serverIP, TCPserverPort);
+                tcpOut = new ObjectOutputStream(tcpSocket.getOutputStream());
+                tcpIn = new ObjectInputStream(tcpSocket.getInputStream());
+                System.out.println("Connected to server!");
+                break;
+            } catch (IOException e) {
+                System.out.println("Failed to connect to server. Retrying in 3 seconds...");
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException ex) {
+                    Thread.currentThread().interrupt();
+                    System.out.println("Connection attempt interrupted.");
+                    return;
                 }
-            } catch (IOException ex) {
-                System.err.println("Error closing socket: " + ex.getMessage());
             }
-            System.exit(1);
         }
     }
 
