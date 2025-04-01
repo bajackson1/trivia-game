@@ -185,7 +185,8 @@ public class ClientWindow implements ActionListener {
         System.out.println("Attempting to connect to server...");
         while (true) { // Keep retrying until connected
             try {
-                tcpSocket = new Socket(serverIP, TCPserverPort);
+                tcpSocket = new Socket();
+                tcpSocket.connect(new InetSocketAddress(serverIP, TCPserverPort), 5000);
                 tcpOut = new ObjectOutputStream(tcpSocket.getOutputStream());
                 tcpIn = new ObjectInputStream(tcpSocket.getInputStream());
                 System.out.println("Connected to server!");
