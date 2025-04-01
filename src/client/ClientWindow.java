@@ -112,7 +112,7 @@ public class ClientWindow implements ActionListener {
         
         // Timer display
         timer = new JLabel("", SwingConstants.CENTER);
-        timer.setBounds(150, 250, 50, 20);
+        timer.setBounds(75, 250, 200, 20);
         timer.setFont(new Font("Arial", Font.BOLD, 16));
         timer.setForeground(Color.BLUE);
         gamePanel.add(timer);
@@ -389,7 +389,7 @@ public class ClientWindow implements ActionListener {
         if (clock != null) {
             clock.cancel();
         }
-        timer.setText("Too slow! Please wait.");
+        timer.setText("Too slow!");
     }
 
     // Added by Brooks - Updates score display
@@ -472,7 +472,7 @@ public class ClientWindow implements ActionListener {
         public void run() {
             SwingUtilities.invokeLater(() -> {
                 if (duration < 0) {
-                    timer.setText("Time expired");
+                    timer.setText("<html>Time expired</html>");
                     this.cancel();
                 } else {
                     timer.setForeground(duration < 6 ? Color.RED : Color.BLUE);
